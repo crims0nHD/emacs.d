@@ -14,10 +14,7 @@
 (tooltip-mode -1) ; Disable tooltips
 (set-fringe-mode 0) ; borders
 (menu-bar-mode -1)
-
 (setq visible-bell t)
-
-(load-theme 'wombat)
 
 ;; Packages
 (require 'package)
@@ -44,7 +41,7 @@
  ;; If there is more than one, they won't work right.
  '(ivy-mode t)
  '(package-selected-packages
-   '(zone-rainbow rainbow-mode vterm general counsel ace-window evil-leader which-key undo-fu undo-tree evil-collection evil ivy use-package)))
+   '(projectile powerline doom-themes zone-rainbow rainbow-mode vterm general counsel ace-window evil-leader which-key undo-fu undo-tree evil-collection evil ivy use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -74,68 +71,31 @@
 ;; vterm
 (use-package vterm)
 
-;; evil mode & keybindings
-;; -------------------------
-(setq evil-want-keybinding nil)
-(use-package evil)
-(use-package evil-collection)
-(evil-collection-init)
+;; theme
+(use-package doom-themes
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-gruvbox t)
 
-(setq evil-normal-state-tag (propertize "[N]" 'face '((:foreground "DarkRed")))
-      evil-insert-state-tag (propertize "[I]" 'face '((:foreground "LimeGreen")))
-      evil-visual-state-tag (propertize "[V]" 'face '((:foreground "orange")))
-      evil-emacs-state-tag (propertize "[E]" 'face '((:foreground "MediumBlue"))))
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
-(use-package evil-leader)
-(evil-leader/set-leader "<SPC>")
+;; Projectile
+(use-package projectile)
+(setq projectile-project-search-path '("~/src/"))
+(projectile-mode +1)
 
-(use-package general)
-(general-define-key
- :keymaps '(normal emacs)
- :prefix "SPC"
- :non-noremal-prefix "M-SPC"
- "w" '(:ignore t :which-key "window")
- "w a" 'ace-window
- "w s" 'split-window-vertically
- "w v" 'split-window-horizontally
- "w d" 'delete-window
- "b" '(:ignore t :which-key "buffer")
- "b e" 'eval-buffer
- "b s" 'save-buffer
- "b d" 'kill-this-buffer
- "o" '(:ignore t :which-key "open")
- "o t" 'term
- "o f" 'find-file
- "o c" '(:ignore t :which-key "config")
- "o c i" '((lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/init.el"))) :which-key "init.el")
- "q" '(:ignore t :which-key "session")
- "q q" 'save-buffers-kill-terminal
- "i" '(:ignore t :which-key "insert")
- "i c" 'counsel-colors-emacs
- "t" '(:ignore t :which-key "toggle")
- )
-
-(global-evil-leader-mode)
-(evil-mode 1)
+;; Keymap
+(load (expand-file-name (concat user-emacs-directory "/keymap.el")))
 
 ;; Modeline
-;; --------------
-(defun ml-format--evil ()
-  (if (string= (symbol-name evil-state) "normal")
-      evil-normal-state-tag
-  (if (string= (symbol-name evil-state) "insert")
-      evil-insert-state-tag
-  (if (string= (symbol-name evil-state) "visual")
-      evil-visual-state-tag
-  (if (string= (symbol-name evil-state) "emacs")
-      evil-emacs-state-tag
-    )))
-    )
-  )
-
-(setq-default mode-line-format
-	      (list
-	       " %b - %c:%l --- "
-	       '(:eval (ml-format--evil))
-	       )
-	      )
+(load (expand-file-name (concat user-emacs-directory "/modeline.el")))
